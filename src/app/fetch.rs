@@ -1,5 +1,5 @@
 use console::{style, Emoji};
-use git2::{AnnotatedCommit, AutotagOption, FetchOptions, Remote, RemoteCallbacks};
+use git2::{AnnotatedCommit, AutotagOption, FetchOptions, Reference, Remote, RemoteCallbacks};
 
 use crate::{progress::fetch::FetchProgress, utils::git::ssh_creds};
 
@@ -8,7 +8,7 @@ use super::{repo::Repo, App};
 static LOOKING_GLASS: Emoji<'_, '_> = Emoji("🔍  ", "");
 
 pub trait Fetch: Repo {
-    fn fetch(&self, refs: &[&str], remote: &mut Remote) -> Result<AnnotatedCommit, git2::Error> {
+    fn fetch(&self, refs: &str, remote: &mut Remote) -> Result<AnnotatedCommit, git2::Error> {
         let pb = FetchProgress::new();
 
         let mut cb = RemoteCallbacks::new();
@@ -27,19 +27,33 @@ pub trait Fetch: Repo {
         pb.println(format!(
             "{}Fetching {} for repo from {}...",
             LOOKING_GLASS,
-            style(refs.join(",")).italic().dim().blue(),
+            style(refs).italic().dim().blue(),
             style(remote.name().unwrap()).italic().bold().green()
         ))
         .unwrap();
 
-        if let Err(e) = remote.fetch(refs, Some(&mut fo), None) {
+        if let Err(e) = remote.fetch(&[refs], Some(&mut fo), None) {
             match e.class() {
                 git2::ErrorClass::Net => println!("Error: {}", e),
                 _ => return Err(e),
             }
         }
+        if !refs.starts_with("refs/heads") {
+            let refs_head = self.repo().find_reference(
+                format!("refs/remotes/{}/{}", remote.name().unwrap(), refs).as_str(),
+            )?;
+            let com = self.repo().reference_to_annotated_commit(&refs_head)?;
 
-        let fetch_head = self.repo().find_reference("FETCH_HEAD")?;
+            pb.println(format!("{:?}", com.refname().unwrap())).unwrap();
+        }
+
+        let fetch_head = if Reference::is_valid_name(refs) {
+            self.repo().find_reference(refs)
+        } else {
+            self.repo().find_reference(
+                format!("refs/remotes/{}/{}", remote.name().unwrap(), refs).as_str(),
+            )
+        }?;
         self.repo().reference_to_annotated_commit(&fetch_head)
     }
 }
@@ -161,7 +175,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            app.fetch(&["main"], &mut remote).unwrap().id(),
+            app.fetch("main", &mut remote).unwrap().id(),
             Repository::open(&remote_dir)?
                 .find_reference("refs/heads/main")?
                 .peel_to_commit()?

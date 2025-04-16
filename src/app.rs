@@ -63,7 +63,7 @@ impl App {
 
     fn merge_main(&self) -> Result<bool, git2::Error> {
         let mut remote = self.repo.find_remote(REMOTE_NAME)?;
-        let fetch_commit = self.fetch(&[REMOTE_BRANCH], &mut remote)?;
+        let fetch_commit = self.fetch(REMOTE_BRANCH, &mut remote)?;
 
         let head = self.repo.head()?;
         let current_ref = head.name().unwrap();
@@ -80,7 +80,7 @@ impl App {
 
         let head = self.repo.head()?;
         let current_ref = head.name().unwrap();
-        let fetch_commit = self.fetch(&[current_ref], &mut remote)?;
+        let fetch_commit = self.fetch(current_ref, &mut remote)?;
 
         self.merge(current_ref, fetch_commit)?;
 
@@ -99,7 +99,7 @@ impl App {
     }
 
     fn get_current_oid(&self) -> Result<Oid, git2::Error> {
-        Ok(self.repo.refname_to_id("HEAD")?)
+        self.repo.refname_to_id("HEAD")
     }
 }
 

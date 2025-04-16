@@ -74,7 +74,7 @@ pub trait Merge: Repo {
         }
         let result_tree = repo.find_tree(idx.write_tree_to(repo)?)?;
         // now create the merge commit
-        let msg = format!("Merge: {} into {}", remote.id(), local.id());
+        let msg = format!("Merge '{}' into {}", get_name(remote), get_name(local));
         let sig = repo.signature()?;
         let local_commit = repo.find_commit(local.id())?;
         let remote_commit = repo.find_commit(remote.id())?;
@@ -119,6 +119,12 @@ pub trait Merge: Repo {
 }
 
 impl Merge for App {}
+
+fn get_name(commit: &git2::AnnotatedCommit) -> String {
+    commit
+        .refname()
+        .map_or_else(|| commit.id().to_string(), |refname| refname.to_string())
+}
 
 #[cfg(test)]
 mod tests {
