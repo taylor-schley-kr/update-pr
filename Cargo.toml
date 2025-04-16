@@ -1,0 +1,15 @@
+[package]
+name = "update-pr"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.97"
+clap = { version = "4.5.35", features = ["derive"] }
+console = "0.15.11"
+git2 = "0.20.1"
+humantime = "2.2.0"
+indicatif = "0.17.11"
+
+[dev-dependencies]
+testdir = "0.9.3"
