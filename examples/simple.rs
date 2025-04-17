@@ -209,3 +209,14 @@ fn create_commit<S: AsRef<Path>>(dir: S) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_runner() -> Result<()> {
+        let runner = Runner::new()?;
+        runner.run()
+    }
+}
