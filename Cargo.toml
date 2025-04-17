@@ -3,6 +3,17 @@ name = "update-pr"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+test = true
+
+[[bin]]
+name = "update-pr"
+test = false
+
+[[example]]
+name = "simple"
+test = true
+
 [dependencies]
 anyhow = "1.0.97"
 clap = { version = "4.5.35", features = ["derive"] }
