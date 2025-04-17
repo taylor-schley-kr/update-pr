@@ -3,7 +3,7 @@ mod merge;
 mod push;
 mod repo;
 
-use anyhow::Result;
+use color_eyre::eyre::Result;
 use fetch::Fetch;
 use git2::{Oid, Repository};
 use humantime::Duration;

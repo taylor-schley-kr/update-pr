@@ -49,7 +49,7 @@ mod tests {
         process::Command,
     };
 
-    use anyhow::Result;
+    use color_eyre::eyre::Result;
     use git2::{AnnotatedCommit, Repository};
     use testdir::testdir;
 
@@ -98,7 +98,7 @@ mod tests {
                 .arg("init")
                 .arg("--bare")
                 .arg("--initial-branch=main")
-                .output()?;
+                .status()?;
 
             Ok(Self {
                 base_dir,
@@ -113,17 +113,17 @@ mod tests {
             let mut file = File::create(&file_path)?;
             file.write_all(b"# Test\n")?;
 
-            git_cmd(&setup_dir).arg("add").arg(&file_path).output()?;
+            git_cmd(&setup_dir).arg("add").arg(&file_path).status()?;
             git_cmd(&setup_dir)
                 .arg("commit")
                 .arg("-m")
                 .arg("Initial commit")
-                .output()?;
+                .status()?;
             git_cmd(&setup_dir)
                 .arg("push")
                 .arg("origin")
                 .arg("HEAD:main")
-                .output()?;
+                .status()?;
 
             Ok(self)
         }
@@ -139,7 +139,7 @@ mod tests {
                 .arg("clone")
                 .arg(&self.remote_dir)
                 .arg(".")
-                .output()?;
+                .status()?;
 
             Ok(repo_dir)
         }
@@ -157,12 +157,12 @@ mod tests {
             let mut file = File::create(&file_path)?;
             file.write_all(b"Hello World")?;
 
-            git_cmd(&usage_dir).arg("add").arg(&file_path).output()?;
+            git_cmd(&usage_dir).arg("add").arg(&file_path).status()?;
             git_cmd(&usage_dir)
                 .arg("commit")
                 .arg("-m")
                 .arg("add file.txt")
-                .output()?;
+                .status()?;
         }
 
         let app = TestApp {

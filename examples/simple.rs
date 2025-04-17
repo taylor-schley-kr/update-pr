@@ -1,6 +1,6 @@
 use std::{ffi::OsStr, fmt::Display, path::Path, process::Command};
 
-use anyhow::Result;
+use color_eyre::eyre::Result;
 use console::{style, Style};
 use tempfile::TempDir;
 use update_pr::{app::App, cli::Cli};
@@ -11,6 +11,8 @@ lazy_static::lazy_static! {
 }
 
 fn main() -> Result<()> {
+    color_eyre::install()?;
+
     Runner::new()?.run()
 }
 

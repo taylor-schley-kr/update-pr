@@ -68,7 +68,7 @@ mod tests {
         process::Command,
     };
 
-    use anyhow::Result;
+    use color_eyre::eyre::Result;
     use git2::Repository;
     use testdir::testdir;
 
@@ -103,7 +103,7 @@ mod tests {
             .arg("init")
             .arg("--bare")
             .arg("--initial-branch=main")
-            .output()?;
+            .status()?;
 
         //
         // create a commit
@@ -117,8 +117,7 @@ mod tests {
                 .arg("clone")
                 .arg(&remote_dir)
                 .arg(".")
-                .output()
-                .unwrap();
+                .status()?;
 
             let file_path = commit_dir.join("README.md");
             let mut file = File::create(&file_path)?;
@@ -128,13 +127,13 @@ mod tests {
                 .current_dir(&commit_dir)
                 .arg("add")
                 .arg("README.md")
-                .output()?;
+                .status()?;
             Command::new("git")
                 .current_dir(&commit_dir)
                 .arg("commit")
                 .arg("-m")
                 .arg("Initial commit")
-                .output()?;
+                .status()?;
 
             assert!(file_path.exists());
 
@@ -143,7 +142,7 @@ mod tests {
                 .arg("push")
                 .arg("origin")
                 .arg("HEAD:main")
-                .output()?;
+                .status()?;
         }
 
         //
@@ -157,8 +156,7 @@ mod tests {
             .arg("clone")
             .arg(&remote_dir)
             .arg(".")
-            .output()
-            .unwrap();
+            .status()?;
 
         assert!(usage_dir.join(".git").exists());
 
