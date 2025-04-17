@@ -102,6 +102,7 @@ mod tests {
             .current_dir(&remote_dir)
             .arg("init")
             .arg("--bare")
+            .arg("--initial-branch=main")
             .output()?;
 
         //
@@ -113,16 +114,11 @@ mod tests {
 
             Command::new("git")
                 .current_dir(&commit_dir)
-                .arg("init")
+                .arg("clone")
+                .arg(&remote_dir)
+                .arg(".")
                 .output()
                 .unwrap();
-            Command::new("git")
-                .current_dir(&commit_dir)
-                .arg("remote")
-                .arg("add")
-                .arg("origin")
-                .arg(remote_dir.to_owned().into_os_string().to_str().unwrap())
-                .output()?;
 
             let file_path = commit_dir.join("README.md");
             let mut file = File::create(&file_path)?;
@@ -158,21 +154,18 @@ mod tests {
 
         Command::new("git")
             .current_dir(&usage_dir)
-            .arg("init")
-            .output()?;
+            .arg("clone")
+            .arg(&remote_dir)
+            .arg(".")
+            .output()
+            .unwrap();
 
         assert!(usage_dir.join(".git").exists());
 
         let app = TestApp {
             repo: Repository::open(&usage_dir)?,
         };
-        let mut remote = app
-            .repo()
-            .remote(
-                "origin",
-                remote_dir.to_owned().into_os_string().to_str().unwrap(),
-            )
-            .unwrap();
+        let mut remote = app.repo().find_remote("origin").unwrap();
 
         assert_eq!(
             app.fetch("main", &mut remote).unwrap().id(),

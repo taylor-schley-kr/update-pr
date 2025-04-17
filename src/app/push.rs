@@ -94,7 +94,11 @@ mod tests {
             let remote_dir = base_dir.join("remote");
             create_dir(&remote_dir)?;
 
-            git_cmd(&remote_dir).arg("init").arg("--bare").output()?;
+            git_cmd(&remote_dir)
+                .arg("init")
+                .arg("--bare")
+                .arg("--initial-branch=main")
+                .output()?;
 
             Ok(Self {
                 base_dir,
