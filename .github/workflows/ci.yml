@@ -16,6 +16,10 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
+      - name: Setup git identity for tests
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "CI"
       - name: Run tests
         run: cargo test --locked --all-features --workspace
       - name: Save Test Artifacts
@@ -77,7 +81,7 @@ jobs:
       - docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: manoadamro/rust-release@v1
         with:
           owner: ${{ github.repository_owner }}
